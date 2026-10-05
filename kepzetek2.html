@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Képzetek – pszichológiaóra, 10. osztály</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Literata:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F2F9; --card:#FFFFFF; --ink:#1F2347; --muted:#5A5F85; --line:#D9D6E8;
+  --lemon:#F2C94C; --lemon-ink:#3A2F00; --cobalt:#3346D3; --good:#1B7F5C; --bad:#B3303F;
+  --good-bg:#DDF3EA; --bad-bg:#F8E0E3;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15172B; --card:#20243F; --ink:#ECEBF7; --muted:#A5A9CC; --line:#363B63;
+    --lemon:#F2C94C; --lemon-ink:#3A2F00; --cobalt:#8E9BFF; --good:#6FE0B2; --bad:#FF9AA6;
+    --good-bg:#17382E; --bad-bg:#3E1F28;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15172B; --card:#20243F; --ink:#ECEBF7; --muted:#A5A9CC; --line:#363B63;
+  --cobalt:#8E9BFF; --good:#6FE0B2; --bad:#FF9AA6; --good-bg:#17382E; --bad-bg:#3E1F28;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+html,body{margin:0}
+body{height:100%;background:var(--paper);color:var(--ink);font-family:"Literata",Georgia,"Times New Roman",serif;line-height:1.55;font-size:18px;overflow:hidden}
+h1,h2,h3,button,.sans{font-family:"Bricolage Grotesque","Segoe UI",Roboto,Arial,sans-serif}
+h1{font-size:clamp(2.2rem,6vw,4.2rem);line-height:1.05;margin:0 0 .4em;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.6rem,3.8vw,2.5rem);line-height:1.12;margin:0 0 .5em;font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.1rem;margin:0 0 .3em;font-weight:700}
+p{margin:0 0 .8em;max-width:62ch}
+.muted{color:var(--muted)}
+
+#deck{height:100%;position:relative}
+.slide{position:absolute;inset:0;display:none;overflow-y:auto;padding:clamp(18px,4vw,48px) clamp(18px,6vw,80px) 96px}
+.slide.active{display:block}
+.inner{max-width:980px;margin:0 auto}
+
+/* top bar */
+#bar{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);height:5px;background:var(--line);z-index:5}
+#bar i{display:block;height:100%;width:0;background:var(--cobalt);transition:width .3s}
+#nav{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(to top,var(--paper) 70%,transparent);z-index:5}
+#nav button{border:2px solid var(--ink);background:var(--card);color:var(--ink);font-weight:700;font-size:1rem;padding:10px 18px;border-radius:999px;cursor:pointer}
+#nav button:hover{background:var(--ink);color:var(--paper)}
+#count{font-size:.9rem;color:var(--muted)}
+button:focus-visible{outline:3px solid var(--cobalt);outline-offset:2px}
+
+/* cards & buttons */
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:18px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px}
+.tap{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer}
+.tap:hover{border-color:var(--cobalt)}
+.tap h3{display:flex;justify-content:space-between;gap:10px}
+.tap .more{display:none;margin-top:8px;font-family:"Literata",Georgia,serif;font-weight:400;font-size:.95rem;color:var(--ink)}
+.tap.open{border-color:var(--cobalt);background:var(--card)}
+.tap.open .more{display:block}
+.tap .chev{color:var(--cobalt);font-weight:800}
+.btn{display:inline-block;border:0;background:var(--lemon);color:var(--lemon-ink);font-weight:800;font-size:1.05rem;padding:12px 24px;border-radius:999px;cursor:pointer}
+.btn:hover{filter:brightness(.95)}
+.btn.alt{background:var(--card);color:var(--ink);border:2px solid var(--ink)}
+.hidden{display:none}
+.big{font-size:clamp(1.3rem,3vw,1.9rem);line-height:1.35}
+.tag{display:inline-block;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:.85rem;background:var(--lemon);color:var(--lemon-ink);padding:2px 10px;border-radius:999px;margin-bottom:10px}
+
+/* hook */
+.hook{min-height:calc(100% - 60px);display:flex;flex-direction:column;justify-content:center}
+.lemon{width:120px;height:90px;margin:6px 0 18px}
+
+/* compare table */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.cmp .card h3{color:var(--cobalt)}
+.cmp ul{margin:0;padding-left:1.1em}
+.cmp li{margin:.35em 0}
+@media (max-width:640px){.cmp{grid-template-columns:1fr}}
+
+/* quiz */
+.q{margin:14px 0;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px}
+.q p.t{font-weight:600;margin-bottom:10px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts button{font-size:.95rem;font-weight:700;border:2px solid var(--line);background:var(--paper);color:var(--ink);padding:8px 14px;border-radius:999px;cursor:pointer}
+.opts button:hover{border-color:var(--cobalt)}
+.opts button.right{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.opts button.wrong{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.fb{margin-top:10px;font-size:.95rem;display:none}
+.fb.show{display:block}
+
+/* slider */
+.scale{margin:18px 0}
+.scale input{width:100%;accent-color:var(--cobalt)}
+.scale .ends{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted)}
+#vres{margin-top:14px;min-height:5.5em}
+
+/* rotation */
+.rot{display:flex;gap:26px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.rot svg{width:130px;height:130px;background:var(--card);border:1.5px solid var(--line);border-radius:14px}
+.rot text{fill:var(--ink);font-family:"Bricolage Grotesque",Arial,sans-serif;font-weight:800;font-size:84px;text-anchor:middle;dominant-baseline:central}
+.rot .lab{font-size:.85rem;color:var(--muted);text-align:center;margin-top:4px}
+
+/* notes */
+.note{display:none;margin-top:26px;padding:12px 16px;border-left:5px solid var(--lemon);background:var(--card);border-radius:0 10px 10px 0;font-size:.9rem;color:var(--muted)}
+body.notes .note{display:block}
+.hint{position:fixed;right:14px;top:calc(14px + env(safe-area-inset-top,0px));font-size:.8rem;color:var(--muted);z-index:4}
+ol.steps{padding-left:1.2em}ol.steps li{margin:.4em 0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="bar"><i></i></div>
+<div class="hint sans">← → lapozás · N = tanári jegyzetek</div>
+
+<main id="deck">
+
+<!-- 1. HOOK -->
+<section class="slide active">
+  <div class="inner hook">
+    <div id="hook1">
+      <p class="tag">Pszichológia · 10. osztály</p>
+      <h1>Csukd be a szemed.</h1>
+      <p class="big">Képzelj el egy citromot. Vágd félbe. Érezd a szagát. Most harapj bele.</p>
+      <p class="muted">Tartsd csukva még 10 másodpercig…</p>
+      <button class="btn" data-show="hook2" data-hide="hook1">Kinyitottam a szemem</button>
+    </div>
+    <div id="hook2" class="hidden">
+      <svg class="lemon" viewBox="0 0 120 90" aria-hidden="true"><ellipse cx="60" cy="46" rx="48" ry="34" fill="#F2C94C"/><path d="M12 46 Q4 44 2 40 Q8 40 14 42Z M108 46 Q116 44 118 40 Q112 40 106 42Z" fill="#F2C94C"/><path d="M60 12 Q70 2 84 6 Q76 14 62 14Z" fill="#4C9A5B"/></svg>
+      <h1>Nincs is itt citrom.</h1>
+      <p class="big">Mégis „láttad”, talán a szád is összeszaladt. Amit az előbb átéltél, az a <strong>képzet</strong>.</p>
+      <p class="muted">Ma kiderítjük, mi ez, hogyan működik, és miért nem tudnánk nélküle élni.</p>
+    </div>
+    <div class="note">Mondd lassan, adj igazi 10 mp csendet. Kérdezd: „Kinek folyt össze a nyál? Ki látott élénk képet? Kinek csak sötétség volt?” Ne kommentáld a válaszokat, a 8. dián visszatérünk rá.</div>
+  </div>
+</section>
+
+<!-- 2. DEFINICIO -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Mi ez?</p>
+    <h2>A képzet: kép a fejünkben, inger nélkül</h2>
+    <p class="big">A <strong>képzet</strong> (reprezentáció) a tárgyak, személyek, jelenségek belső, szemléletes mása, amely akkor is megjelenik a tudatunkban, amikor az illető dolog éppen <em>nem hat</em> az érzékszerveinkre.</p>
+    <div class="cmp">
+      <div class="card"><h3>Észlelés</h3><ul>
+        <li>az inger jelen van</li><li>éles, részletgazdag</li><li>stabil, nem „változik meg” magától</li><li>az érzékszerveink hozzák létre</li></ul></div>
+      <div class="card"><h3>Képzet</h3><ul>
+        <li>az inger hiányzik</li><li>halványabb, hiányos</li><li>ingadozó, könnyen elillan</li><li>az emlékezet és a képzelet hozza létre</li></ul></div>
+    </div>
+    <div class="note">Hangsúlyozd: a képzet az észlelésre épül (abból „marad meg”), ezért a két témakört érdemes összekötni. Kérdezd meg: ha a citrom szúrós szagát képzeled el, ugyanolyan erős, mint ha tényleg szagolnád?</div>
+  </div>
+</section>
+
+<!-- 3. FEJBOL -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Kipróbáljuk</p>
+    <h2>Válaszolj fejből, ne gondolkodj sokat</h2>
+    <div class="grid">
+      <button class="tap"><h3>Hány ablak van az otthonodban? <span class="chev">+</span></h3><div class="more">Figyeld meg, mit csináltál: „végigsétáltál” fejben a szobákon. Ehhez a lakásod képzetét használtad.</div></button>
+      <button class="tap"><h3>Hány lépcsőfok vezet az iskola főbejáratához? <span class="chev">+</span></h3><div class="more">Aki nem számolta meg soha, annak is van valami képe róla, csak hiányos. A képzet nem fényképmásolat.</div></button>
+      <button class="tap"><h3>A közlekedési lámpán melyik szín van legfelül? <span class="chev">+</span></h3><div class="more">Piros. Sokan „odaképzelik” a lámpát, és onnan olvassák le a választ.</div></button>
+      <button class="tap"><h3>Rajzold le egy percig fejből a biciklit! <span class="chev">+</span></h3><div class="more">Ez a híres feladat: a legtöbben elrontják a vázat és a láncot. Pedig naponta látjuk! A képzet általánosabb és hiányosabb, mint gondolnánk.</div></button>
+    </div>
+    <p class="muted" style="margin-top:16px">Koppints egy kérdésre a magyarázathoz.</p>
+    <div class="note">A bicikli-rajzot érdemes valóban megcsinálni 1 percben, majd összehasonlítani egy valódi bicikli fényképével (vagy az ablakon kinézve). A nevetés garantált, és szemlélteti a „hiányos képzet” fogalmát.</div>
+  </div>
+</section>
+
+<!-- 4. MODALITAS -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Nem csak látunk</p>
+    <h2>Minden érzékszervünknek van képzete</h2>
+    <p>Koppints a kártyákra, és próbáld ki őket egyenként.</p>
+    <div class="grid">
+      <button class="tap"><h3>Látási <span class="chev">+</span></h3><div class="more">Képzeld el a telefonod zárolt képernyőjét. Mi van rajta, és hol?</div></button>
+      <button class="tap"><h3>Hallási <span class="chev">+</span></h3><div class="more">Szólaltasd meg fejben a kedvenc dalod refrénjét. Ez a „fülférgek” (earworm) jelensége.</div></button>
+      <button class="tap"><h3>Tapintási <span class="chev">+</span></h3><div class="more">Képzeld el, hogy egy jéghideg fém kapaszkodót fogsz meg télen.</div></button>
+      <button class="tap"><h3>Szaglási <span class="chev">+</span></h3><div class="more">A frissen sült kenyér illata. Ez a legnehezebb, sokaknak alig megy.</div></button>
+      <button class="tap"><h3>Ízlelési <span class="chev">+</span></h3><div class="more">Vissza a citromhoz! Az ízképzet gyakran testi reakciót vált ki.</div></button>
+      <button class="tap"><h3>Mozgásos <span class="chev">+</span></h3><div class="more">Képzeld el, hogy kosárra dobsz. A karod apró izommozdulatai is „lejátszódnak”. A sportolók ezt edzik.</div></button>
+    </div>
+    <div class="note">Kérdezd meg, melyik ment a legkönnyebben és melyik a legnehezebben. A látási és hallási képzet a leggyakoribb, a szaglási és ízlelési a leggyengébb – ezt köthetjük a 8. dián az egyéni különbségekhez.</div>
+  </div>
+</section>
+
+<!-- 5. OSZTALYOZAS -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Rendszerezés</p>
+    <h2>A képzetek osztályozása, 5 szempont szerint</h2>
+    <div class="grid">
+      <button class="tap"><h3>1. Az érzékszerv szerint <span class="chev">+</span></h3><div class="more">látási, hallási, tapintási, szaglási, ízlelési, mozgásos (kinesztetikus)</div></button>
+      <button class="tap"><h3>2. Az általánosság foka szerint <span class="chev">+</span></h3><div class="more">egyedi (a saját kutyám) és általános (a „kutya” mint fogalom, konkrét fajta nélkül)</div></button>
+      <button class="tap"><h3>3. A keletkezés szerint <span class="chev">+</span></h3><div class="more">emlékezeti (amit láttunk, felidézzük) és képzeleti (új dolgot alkotunk, pl. sárkány)</div></button>
+      <button class="tap"><h3>4. Az akaratlagosság szerint <span class="chev">+</span></h3><div class="more">akaratlan (magától beugrik) és akaratlagos (szándékosan idézzük fel)</div></button>
+      <button class="tap"><h3>5. A mozgás szerint <span class="chev">+</span></h3><div class="more">statikus (álló kép) és dinamikus (mozgó, „lepergő” jelenet)</div></button>
+    </div>
+    <div class="note">FIGYELEM: az 5 szempontot általános tankönyvi felosztás alapján állítottam össze. Igazítsd a saját jegyzeteidhez / a tantervhez, ha náluk más a sorrend vagy az ötödik szempont.</div>
+  </div>
+</section>
+
+<!-- 6. QUIZ -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Mini-kvíz</p>
+    <h2>Melyik típus? Döntsd el!</h2>
+    <div id="quiz"></div>
+    <p id="qscore" class="sans" style="font-weight:700"></p>
+    <div class="note">Szavaztathatsz kézfeltartással is: a telefonokat félre, a vita lényege az indoklás. A 2. kérdés tipikus vitatéma: a sárkány elemei (pikkely, szárny) emlékezeti darabokból állnak össze.</div>
+  </div>
+</section>
+
+<!-- 7. JELLEMZOK -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Milyen a képzet?</p>
+    <h2>A képzetek jellemzői</h2>
+    <div class="grid">
+      <button class="tap"><h3>Szemléletes <span class="chev">+</span></h3><div class="more">Képszerű, érzékletes, nem elvont, mint egy fogalom.</div></button>
+      <button class="tap"><h3>Halványabb, mint az észlelés <span class="chev">+</span></h3><div class="more">Kevésbé élénk és kevésbé részletes. Ha a látottal azonos lenne, nem tudnánk megkülönböztetni a valóságtól.</div></button>
+      <button class="tap"><h3>Hiányos és ingadozó <span class="chev">+</span></h3><div class="more">Részletek hiányoznak, a kép „remeg”, elillan. Próbáld pontosan megszámolni egy tigris csíkjait fejben!</div></button>
+      <button class="tap"><h3>Általánosító <span class="chev">+</span></h3><div class="more">Képzelj el egy kutyát. Melyik fajta? Valószínűleg „átlagkutya”, a sok látott kutya összegzése.</div></button>
+      <button class="tap"><h3>Személyes, szubjektív <span class="chev">+</span></h3><div class="more">Az én citromom nem ugyanaz, mint a tiéd: az élményeinkre épül.</div></button>
+      <button class="tap"><h3>Egyéni különbségek <span class="chev">+</span></h3><div class="more">Van, aki filmszerűen lát, van, aki szinte semmit. Erről szól a következő dia.</div></button>
+    </div>
+    <div class="note">Köss vissza az 1. diához: „A citrom kép lehet, hogy nem volt éles és nem volt stabil – pont ezért képzet, és nem észlelés.”</div>
+  </div>
+</section>
+
+<!-- 8. VVIQ -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Önismeret</p>
+    <h2>Mennyire élénk a te belső képed?</h2>
+    <p class="big">Képzeld el a reggeli napfelkeltét. Mennyire élénk a kép?</p>
+    <div class="scale">
+      <input id="vs" type="range" min="1" max="5" step="1" value="3" aria-label="A képzet élénksége 1-től 5-ig">
+      <div class="ends"><span>1 – nincs kép</span><span>5 – szinte mint egy film</span></div>
+    </div>
+    <button class="btn" id="vbtn">Mit jelent ez?</button>
+    <div id="vres" class="card hidden"></div>
+    <p class="muted" style="margin-top:14px">Ez nem teszt és nem értékelés, csak figyeld meg magad.</p>
+    <div class="note">A tudományos neve: afantázia (a belső képalkotás hiánya) és hiperfantázia (rendkívül élénk). A becslések szerint az emberek néhány százaléka afantáziás, és sokan csak felnőttként jönnek rá, hogy a többiek „tényleg látnak” a fejükben. Kényes kérdés: senkit ne kérdezz ki név szerint.</div>
+  </div>
+</section>
+
+<!-- 9. ROTACIO -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Kísérlet</p>
+    <h2>Fejben forgatni: ugyanaz vagy tükörkép?</h2>
+    <p>A bal oldali betű az „alap”. A jobb oldali betűt <strong>fejben forgasd vissza</strong>. Ugyanaz a betű, vagy tükörképe?</p>
+    <div id="rotq"></div>
+    <p id="rscore" class="sans" style="font-weight:700"></p>
+    <div class="card" style="margin-top:14px">
+      <h3>Mit mutat ez?</h3>
+      <p style="margin:0">Roger Shepard és Jacqueline Metzler 1971-ben azt találta, hogy minél nagyobb a szög, annál tovább tart a döntés. Mintha tényleg „forgatnánk” egy belső képet. Ez a mentális rotáció, a képzet működésének egyik legszebb bizonyítéka.</p>
+    </div>
+    <div class="note">Kérdezd meg: ki érezte, hogy a nagyobb szögnél tovább tartott? Ez a lényeg. Ha van idő, mérjetek egymás reakcióidejét.</div>
+  </div>
+</section>
+
+<!-- 10. SZEREP -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Mire jó?</p>
+    <h2>A képzetek szerepe az életünkben</h2>
+    <div class="grid">
+      <button class="tap"><h3>Tanulás, emlékezés <span class="chev">+</span></h3><div class="more">A képpel összekötött információt jobban megjegyezzük. A „memóriapalota” módszer: a tételeket fejben a lakásod szobáihoz kötöd.</div></button>
+      <button class="tap"><h3>Gondolkodás, problémamegoldás <span class="chev">+</span></h3><div class="more">Térképet, bútorelrendezést, geometriai ábrát képzetekkel „játszunk le” fejben.</div></button>
+      <button class="tap"><h3>Képzelet, kreativitás <span class="chev">+</span></h3><div class="more">Író, rajzoló, zenész: mind belső képből indul. Új dolgot a már látott elemek újraegyesítésével alkotunk.</div></button>
+      <button class="tap"><h3>Tervezés, előrelátás <span class="chev">+</span></h3><div class="more">Mielőtt döntesz, lepörgeted a következményeket: mi lesz, ha így vagy úgy teszel?</div></button>
+      <button class="tap"><h3>Sport és teljesítmény <span class="chev">+</span></h3><div class="more">A mentális gyakorlás (vizualizáció) bizonyítottan segíti a mozgás tanulását, az edzést nem pótolja, de kiegészíti.</div></button>
+      <button class="tap"><h3>Érzelmek, terápia <span class="chev">+</span></h3><div class="more">A képzetek érzelmeket váltanak ki (ezért ijesztő a rossz álom vagy a vizsgaláz). Ezért használják a relaxációt és a szorongás kezelését támogató gyakorlatokat.</div></button>
+    </div>
+    <div class="note">A sport és a terápia pontjainál maradj óvatos és általános: a vizualizáció támogató eszköz, nem gyógymód. Kérdezd meg a diákokat: ki használta már, pl. szóbeli előtt, hogy „lepörgesse” fejben, mi fog történni?</div>
+  </div>
+</section>
+
+<!-- 11. VITA -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Gondolkodj és vitatkozz</p>
+    <h2>Mi lenne, ha nem lennének képzeteink?</h2>
+    <div class="grid">
+      <div class="card"><h3>1. kérdés</h3><p style="margin:0">Hogyan tervezné meg valaki a holnapját, ha semmit nem tudna elképzelni?</p></div>
+      <div class="card"><h3>2. kérdés</h3><p style="margin:0">Miben különbözik egy fotó a képzettől? Miért jobb, hogy a képzet nem pontos másolat?</p></div>
+      <div class="card"><h3>3. kérdés</h3><p style="margin:0">Egy vak ember hallási és tapintási képzetei vajon gazdagabbak lehetnek? Miért?</p></div>
+    </div>
+    <p class="muted" style="margin-top:16px">Párban: 3 perc, utána két-három csoport mondja el a gondolatát.</p>
+    <div class="note">A 2. kérdés válasza: a képzet gazdaságosan kiemeli a lényegest, ezért lehet általánosítani és új dolgot alkotni. A 3. kérdésnél vigyázz a megfogalmazásra: a kutatások szerint a látás nélkül élők is alkotnak térbeli képzeteket, csak más modalitásban.</div>
+  </div>
+</section>
+
+<!-- 12. OSSZEGZES -->
+<section class="slide">
+  <div class="inner">
+    <p class="tag">Összegzés</p>
+    <h2>Ezt vidd magaddal</h2>
+    <ol class="steps big">
+      <li>A képzet a tárgy belső, szemléletes mása, akkor is, ha az inger nincs jelen.</li>
+      <li>Halványabb, hiányosabb és ingadozóbb, mint az észlelés.</li>
+      <li>Minden érzékszervhez tartozik, és 5 szempont szerint osztályozhatjuk.</li>
+      <li>Tanulásban, gondolkodásban, alkotásban, tervezésben is nélkülözhetetlen.</li>
+    </ol>
+    <div class="card" style="margin-top:20px">
+      <h3>Kilépőkártya (egy mondatban, füzetbe)</h3>
+      <p style="margin:0">Ma megtanultam…  ·  Meglepett, hogy…  ·  Még szeretném tudni…</p>
+    </div>
+    <div class="note">Gyűjtsd be a kilépőkártyákat, a „még szeretném tudni” kérdésekből indulhat a következő óra.</div>
+  </div>
+</section>
+
+</main>
+
+<div id="nav">
+  <button id="prev" aria-label="Előző dia">‹ Vissza</button>
+  <span id="count" class="sans"></span>
+  <button id="next" aria-label="Következő dia">Tovább ›</button>
+</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var i=0, bar=document.querySelector('#bar i'), cnt=document.getElementById('count');
+  function go(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('active',k===i)});
+    slides[i].scrollTop=0;
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    cnt.textContent=(i+1)+' / '+slides.length;
+    document.getElementById('prev').style.visibility=i===0?'hidden':'visible';
+    document.getElementById('next').style.visibility=i===slides.length-1?'hidden':'visible';
+  }
+  document.getElementById('prev').onclick=function(){go(i-1)};
+  document.getElementById('next').onclick=function(){go(i+1)};
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown')go(i+1);
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')go(i-1);
+    else if(e.key==='n'||e.key==='N')document.body.classList.toggle('notes');
+  });
+  var sx=null;
+  document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(sx===null)return; var dx=e.changedTouches[0].clientX-sx; sx=null;
+    if(Math.abs(dx)>70)go(dx<0?i+1:i-1);
+  },{passive:true});
+
+  // tap cards
+  document.querySelectorAll('.tap').forEach(function(t){
+    t.addEventListener('click',function(){
+      var o=t.classList.toggle('open');
+      var c=t.querySelector('.chev'); if(c)c.textContent=o?'–':'+';
+    });
+  });
+  // show/hide buttons
+  document.querySelectorAll('[data-show]').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.getElementById(b.dataset.hide).classList.add('hidden');
+      document.getElementById(b.dataset.show).classList.remove('hidden');
+    });
+  });
+
+  // quiz
+  var QZ=[
+    {t:'A kedvenc dalod refrénje szól a fejedben, pedig nincs bekapcsolva semmi.',o:['Látási','Hallási','Tapintási'],a:1,f:'Hallási képzet: az érzékszerv, amelyhez kapcsolódik, a fül.'},
+    {t:'Elképzelsz egy sárkányt, amilyet soha nem láttál.',o:['Emlékezeti','Képzeleti','Akaratlan'],a:1,f:'Képzeleti: ismert elemekből (kígyó, szárny, tűz) új képet alkotsz.'},
+    {t:'Azt a képet idézed fel, hogy mit jelent általában a „kutya”, nem egy konkrét kutyát.',o:['Egyedi','Általános','Dinamikus'],a:1,f:'Általános képzet: sok egyedi élmény összegzése.'},
+    {t:'Egyszer csak, minden ok nélkül, beugrik egy régi nyaralás képe.',o:['Akaratlan','Akaratlagos','Képzeleti'],a:0,f:'Akaratlan: nem szándékosan idézted fel, magától jött.'}
+  ];
+  var qbox=document.getElementById('quiz'), done=0, good=0;
+  QZ.forEach(function(q){
+    var d=document.createElement('div'); d.className='q';
+    var p=document.createElement('p'); p.className='t'; p.textContent=q.t; d.appendChild(p);
+    var os=document.createElement('div'); os.className='opts'; d.appendChild(os);
+    var fb=document.createElement('div'); fb.className='fb'; d.appendChild(fb);
+    var answered=false;
+    q.o.forEach(function(txt,k){
+      var b=document.createElement('button'); b.textContent=txt;
+      b.onclick=function(){
+        if(answered)return; answered=true; done++;
+        var ok=(k===q.a); if(ok)good++;
+        b.classList.add(ok?'right':'wrong');
+        if(!ok)os.children[q.a].classList.add('right');
+        fb.textContent=(ok?'Jó! ':'Nem egészen. ')+q.f; fb.classList.add('show');
+        if(done===QZ.length)document.getElementById('qscore').textContent='Eredmény: '+good+' / '+QZ.length;
+      };
+      os.appendChild(b);
+    });
+    qbox.appendChild(d);
+  });
+
+  // vividness
+  var VR={
+    1:'Nincs vagy alig van belső képed. Ez az afantázia lehet: nem hiba, csak az agy másik működési módja. Valószínűleg szavakkal, fogalmakkal, érzésekkel gondolkodsz.',
+    2:'Halvány, homályos kép: inkább csak sejted, mint látod. Nagyon gyakori.',
+    3:'Közepesen élénk: látsz valamit, de nem túl részletesen. A legtöbb ember itt van valahol.',
+    4:'Élénk, részletes kép. Valószínűleg könnyen megy a fejben tervezés, forgatás, rajzolás.',
+    5:'Szinte filmszerű, ez a hiperfantázia. Nagyon ritka, és előnye mellett fárasztó is lehet.'
+  };
+  var vs=document.getElementById('vs'), vres=document.getElementById('vres');
+  document.getElementById('vbtn').onclick=function(){vres.textContent=VR[vs.value];vres.classList.remove('hidden')};
+  vs.addEventListener('input',function(){vres.classList.add('hidden')});
+
+  // rotation
+  var RT=[{a:40,m:false},{a:150,m:true},{a:110,m:false},{a:180,m:true}];
+  var rbox=document.getElementById('rotq'), rdone=0, rgood=0;
+  function svgR(angle,mirror){
+    var tr='rotate('+angle+' 65 65)'+(mirror?' translate(130 0) scale(-1 1)':'');
+    return '<svg viewBox="0 0 130 130" role="img" aria-label="Betű"><g transform="'+tr+'"><text x="65" y="68">R</text></g></svg>';
+  }
+  RT.forEach(function(r,idx){
+    var d=document.createElement('div'); d.className='q';
+    var row=document.createElement('div'); row.className='rot';
+    row.innerHTML='<div>'+svgR(0,false)+'<div class="lab">alap</div></div><div>'+svgR(r.a,r.m)+'<div class="lab">elforgatva '+r.a+'°</div></div>';
+    d.appendChild(row);
+    var os=document.createElement('div'); os.className='opts'; d.appendChild(os);
+    var fb=document.createElement('div'); fb.className='fb'; d.appendChild(fb);
+    var answered=false;
+    [['Ugyanaz',false],['Tükörkép',true]].forEach(function(o){
+      var b=document.createElement('button'); b.textContent=o[0];
+      b.onclick=function(){
+        if(answered)return; answered=true; rdone++;
+        var ok=(o[1]===r.m); if(ok)rgood++;
+        b.classList.add(ok?'right':'wrong');
+        if(!ok){[].forEach.call(os.children,function(x){if(x!==b)x.classList.add('right')})}
+        fb.textContent=(ok?'Helyes! ':'Nem. ')+(r.m?'Ez tükrözött betű.':'Ez ugyanaz a betű, csak elforgatva.');
+        fb.classList.add('show');
+        if(rdone===RT.length)document.getElementById('rscore').textContent='Eredmény: '+rgood+' / '+RT.length;
+      };
+      os.appendChild(b);
+    });
+    rbox.appendChild(d);
+  });
+
+  go(0);
+})();
+</script>
+</body>
+</html>
